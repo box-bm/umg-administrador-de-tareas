@@ -33,7 +33,14 @@ Este proyecto es un **Administrador de Tareas** desarrollado en Python como part
     pip install -r requirements.txt
     ```
 
-3. Ejecuta el script principal:
+3. Crea y ejecuta tu entorno local
+
+    ```bash
+    python -m venv venv
+    source venv/bin/activate
+    ```
+
+4. Ejecuta el script principal:
 
     ```bash
     python main.py
