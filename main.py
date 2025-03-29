@@ -12,6 +12,19 @@ class Table:
         root.config(background="black")
         root.resizable(True, True)
         root.configure(bg="black")
+        root.geometry("800x600")
+        
+        # Add input field for filtering by name
+        self.filter_frame = Frame(root, bg="black")
+        self.filter_frame.pack(fill=X)
+        
+        Label(self.filter_frame, text="Filtrar:", bg="black", fg="white").pack(side=LEFT, padx=5)
+        self.filter_entry = Entry(self.filter_frame, width=30)
+        self.filter_entry.pack(side=LEFT, padx=5)
+        self.filter_entry.bind("<Return>", self.filter_processes)
+        
+        Button(self.filter_frame, text="find", command=self.filter_processes, bg="blue", fg="white", activeforeground="white", activebackground="black").pack(side=LEFT, padx=5)
+        Button(self.filter_frame, text="Clear", command=self.clear_filter, bg="blue", fg="white", activeforeground="white", activebackground="black").pack(side=LEFT, padx=5)
         
         # create scrollbar
         # Create a canvas to hold the table
@@ -27,10 +40,14 @@ class Table:
         self.scrollbar.pack(side=RIGHT, fill=Y)
         self.canvas.config(yscrollcommand=self.scrollbar.set)
         
-        # Create a horizontal scrollbar
-        self.h_scrollbar = Scrollbar(root, orient=HORIZONTAL, command=self.canvas.xview)
-        self.h_scrollbar.pack(side=BOTTOM, fill=X)
-        self.canvas.config(xscrollcommand=self.h_scrollbar.set)
+        # configure the scrollbar to work with the canvas as horizontal
+        self.scrollbar_x = Scrollbar(root, orient="horizontal", command=self.canvas.xview)
+        self.scrollbar_x.pack(side=BOTTOM, fill=X)
+        self.canvas.config(xscrollcommand=self.scrollbar_x.set)
+        
+        # prevent the horizontal scrollbar appearing at the end of the table
+        self.canvas.bind("<Configure>", lambda e: self.canvas.configure(scrollregion=self.canvas.bbox("all")))
+        
 
         # Bind the canvas to update the scroll region
         self.table_frame.bind("<Configure>", lambda e: self.canvas.configure(scrollregion=self.canvas.bbox("all")))
@@ -38,6 +55,44 @@ class Table:
         # Configure static column widths
         
         # code for creating table
+        self.create_table()
+                    
+    def kill_process(self, event):
+        row = event.widget.grid_info()["row"]
+        process_id = lst[row][0]
+        processKill = psutil.Process(int(process_id))
+        processKill.terminate()
+        
+    def suspend_process(self, event):
+        row = event.widget.grid_info()["row"]
+        process_id = lst[row][0]
+        processKill = psutil.Process(int(process_id))
+        processKill.suspend()
+        
+    def resume_process(self, event):
+        row = event.widget.grid_info()["row"]
+        process_id = lst[row][0]
+        processKill = psutil.Process(int(process_id))
+        processKill.resume()
+
+    def filter_processes(self, event=None):  # Make 'event' optional
+        filter_text = self.filter_entry.get().lower()
+        filtered_data = [row for row in process if filter_text in row[1].lower()]
+        
+        global lst, total_rows
+        lst = tuple(filtered_data[:100])
+        total_rows = len(lst)
+        
+        # Clear and refresh the table
+        for widget in self.table_frame.winfo_children():
+            widget.destroy()
+        self.create_table()
+
+    def clear_filter(self):
+        self.filter_entry.delete(0, END)
+        self.filter_processes(None)
+
+    def create_table(self):
         for i in range(total_rows):
             for j in range(total_columns):
                 self.e = Entry(self.table_frame, width=20, fg='white')  # Width in characters
@@ -63,24 +118,6 @@ class Table:
                     self.e.config(state='normal', bg='red', width=10)
                     self.e.insert(END, "Kill")
                     self.e.bind("<Button-1>", self.kill_process)
-                    
-    def kill_process(self, event):
-        row = event.widget.grid_info()["row"]
-        process_id = lst[row][0]
-        processKill = psutil.Process(int(process_id))
-        processKill.terminate()
-        
-    def suspend_process(self, event):
-        row = event.widget.grid_info()["row"]
-        process_id = lst[row][0]
-        processKill = psutil.Process(int(process_id))
-        processKill.suspend()
-        
-    def resume_process(self, event):
-        row = event.widget.grid_info()["row"]
-        process_id = lst[row][0]
-        processKill = psutil.Process(int(process_id))
-        processKill.resume()
  
 process = listar_procesos()
 
