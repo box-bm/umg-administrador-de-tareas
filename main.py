@@ -3,7 +3,7 @@ import tkinter as tk
 from listar_procesos import listar_procesos
 import psutil
  
-colums_added = 1
+colums_added = 3
 
 class Table:
      
@@ -26,34 +26,62 @@ class Table:
         self.scrollbar = Scrollbar(root, command=self.canvas.yview)
         self.scrollbar.pack(side=RIGHT, fill=Y)
         self.canvas.config(yscrollcommand=self.scrollbar.set)
+        
+        # Create a horizontal scrollbar
+        self.h_scrollbar = Scrollbar(root, orient=HORIZONTAL, command=self.canvas.xview)
+        self.h_scrollbar.pack(side=BOTTOM, fill=X)
+        self.canvas.config(xscrollcommand=self.h_scrollbar.set)
 
         # Bind the canvas to update the scroll region
         self.table_frame.bind("<Configure>", lambda e: self.canvas.configure(scrollregion=self.canvas.bbox("all")))
         
+        # Configure static column widths
+        
         # code for creating table
         for i in range(total_rows):
             for j in range(total_columns):
-                 
-                self.e = Entry(self.table_frame, width=20, fg='white')  # Use table_frame instead of root
+                self.e = Entry(self.table_frame, width=20, fg='white')  # Width in characters
                 self.e.grid(row=i, column=j)
-                if (j < total_columns - 1):
+                if (j < total_columns - colums_added):
                     self.e.insert(END, lst[i][j])
-                    self.e.config(state='readonly')  # Asegurar que permanezca en solo lectura    
+                    columnWidth = 10
+                    if j == 1: # Nombre
+                        columnWidth = 30
+                    self.e.config(state='readonly', width=columnWidth)  # Asegurar que permanezca en solo lectura    
                 
+                if j == total_columns - 3:
+                    self.e.config(state='normal', bg='orange', width=10)
+                    self.e.insert(END, "Suspend")
+                    self.e.bind("<Button-1>", self.suspend_process)
+                    
+                if j == total_columns - 2:
+                    self.e.config(state='normal', bg='green', width=10)
+                    self.e.insert(END, "resume")
+                    self.e.bind("<Button-1>", self.resume_process)
+                    
                 if j == total_columns - 1:
-                    self.e.config(state='normal')
+                    self.e.config(state='normal', bg='red', width=10)
                     self.e.insert(END, "Kill")
                     self.e.bind("<Button-1>", self.kill_process)
                     
     def kill_process(self, event):
-        # Get the process id
         row = event.widget.grid_info()["row"]
         process_id = lst[row][0]
-        print(f"Process ID: {process_id}")
         processKill = psutil.Process(int(process_id))
         processKill.terminate()
         
-
+    def suspend_process(self, event):
+        row = event.widget.grid_info()["row"]
+        process_id = lst[row][0]
+        processKill = psutil.Process(int(process_id))
+        processKill.suspend()
+        
+    def resume_process(self, event):
+        row = event.widget.grid_info()["row"]
+        process_id = lst[row][0]
+        processKill = psutil.Process(int(process_id))
+        processKill.resume()
+ 
 process = listar_procesos()
 
 # take the data
