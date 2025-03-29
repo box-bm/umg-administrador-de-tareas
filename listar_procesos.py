@@ -35,4 +35,6 @@ def listar_procesos():
         except (psutil.NoSuchProcess, psutil.AccessDenied):
             continue
 
+    # Sort the processes by RAM usage in descending order
+    procesos.sort(key=lambda x: x[3], reverse=True)
     return procesos
