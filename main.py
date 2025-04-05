@@ -9,45 +9,36 @@ class Table:
      
     def __init__(self,root):
         root.title("Lista de procesos")
-        root.config(background="black")
+        root.config(background="white")
         root.resizable(True, True)
-        root.configure(bg="black")
-        root.geometry("800x600")
+        root.configure(bg="white")
+        root.geometry("900x600")
         
         # Add input field for filtering by name
-        self.filter_frame = Frame(root, bg="black")
+        self.filter_frame = Frame(root, bg="white")
         self.filter_frame.pack(fill=X)
         
-        Label(self.filter_frame, text="Filtrar:", bg="black", fg="white").pack(side=LEFT, padx=5)
+        Label(self.filter_frame, text="Filtrar:", bg="white", fg="black").pack(side=LEFT, padx=5)
         self.filter_entry = Entry(self.filter_frame, width=30)
         self.filter_entry.pack(side=LEFT, padx=5)
         self.filter_entry.bind("<Return>", self.filter_processes)
         
         Button(self.filter_frame, text="find", command=self.filter_processes, bg="blue", fg="white", activeforeground="white", activebackground="black").pack(side=LEFT, padx=5)
-        Button(self.filter_frame, text="Clear", command=self.clear_filter, bg="blue", fg="white", activeforeground="white", activebackground="black").pack(side=LEFT, padx=5)
+        Button(self.filter_frame, text="Clear", command=self.clear_filter, bg="red", fg="white", activeforeground="white", activebackground="black").pack(side=LEFT, padx=5)
         
         # create scrollbar
         # Create a canvas to hold the table
-        self.canvas = Canvas(root, bg="black")
+        self.canvas = Canvas(root, bg="white")
         self.canvas.pack(side=LEFT, fill=BOTH, expand=True)
 
         # Create a frame inside the canvas for the table
-        self.table_frame = Frame(self.canvas, bg="black")  # Use this frame for grid
+        self.table_frame = Frame(self.canvas, bg="white")  # Use this frame for grid
         self.canvas.create_window((0, 0), window=self.table_frame, anchor="nw")
 
         # Configure the scrollbar to work with the canvas
         self.scrollbar = Scrollbar(root, command=self.canvas.yview)
         self.scrollbar.pack(side=RIGHT, fill=Y)
         self.canvas.config(yscrollcommand=self.scrollbar.set)
-        
-        # configure the scrollbar to work with the canvas as horizontal
-        self.scrollbar_x = Scrollbar(root, orient="horizontal", command=self.canvas.xview)
-        self.scrollbar_x.pack(side=BOTTOM, fill=X)
-        self.canvas.config(xscrollcommand=self.scrollbar_x.set)
-        
-        # prevent the horizontal scrollbar appearing at the end of the table
-        self.canvas.bind("<Configure>", lambda e: self.canvas.configure(scrollregion=self.canvas.bbox("all")))
-        
 
         # Bind the canvas to update the scroll region
         self.table_frame.bind("<Configure>", lambda e: self.canvas.configure(scrollregion=self.canvas.bbox("all")))
@@ -95,7 +86,7 @@ class Table:
     def create_table(self):
         for i in range(total_rows):
             for j in range(total_columns):
-                self.e = Entry(self.table_frame, width=20, fg='white')  # Width in characters
+                self.e = Entry(self.table_frame, width=20, fg='black')  # Width in characters
                 self.e.grid(row=i, column=j)
                 if (j < total_columns - colums_added):
                     self.e.insert(END, lst[i][j])
